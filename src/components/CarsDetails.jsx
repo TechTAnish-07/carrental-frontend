@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./CarDetails.css";
-
+import api from "../components/Axios.jsx"; // 👈 your axios instance
 const CarDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -9,16 +9,19 @@ const CarDetails = () => {
   const [car, setCar] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:8080/api/cars/${id}`)
-      .then(res => res.json())
-      .then(data => {
-        console.log("Car Details:", data);
-        setCar(data);
-      })
-      .catch(err => console.error("Error fetching car details:", err));
+    const fetchCarDetails = async () => {
+      try {
+        const res = await api.get(`/api/cars/${id}`);
+        setCar(res.data);
+      } catch (error) {
+        console.error("Error fetching car details:", error);
+      }
+    };
+
+    fetchCarDetails();
   }, [id]);
 
-  if (!car) return <p>Loading...</p>;    
+  if (!car) return <p>Loading...</p>;
 
   return (
     <div className="car-details">
@@ -34,7 +37,7 @@ const CarDetails = () => {
       <p><strong>Price/Day:</strong> ₹{car.pricePerDay}</p>
       <p><strong>Status:</strong> {car.status}</p>
 
-      <h4>Interior images will be added after API integration</h4>
+      <h4>Interior images will be added later</h4>
     </div>
   );
 };

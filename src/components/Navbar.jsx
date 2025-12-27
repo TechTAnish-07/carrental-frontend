@@ -16,10 +16,8 @@ function Navbar() {
     const user = JSON.parse(localStorage.getItem("currentUser"));
     setCurrentUser(user);
   }, [location]);
-
   useEffect(() => {
     const loginStatus = localStorage.getItem("isLoggedIn") === "true";
-    console.log("Login status:", loginStatus);
     setIsLoggedIn(loginStatus);
   }, [location]);
 
@@ -71,6 +69,7 @@ function Navbar() {
           Home
         </NavLink>
 
+      {currentUser?.role !== "ROLE_ADMIN" && (
         <NavLink
           to="/Cars"
           className={({ isActive }) => isActive ? 'active' : ''}
@@ -78,17 +77,22 @@ function Navbar() {
         >
           Cars
         </NavLink>
+      )}
 
-        <span
-          onClick={() => {
-            setClickedNav('About');
-            setIsOpen(false);
-            scrollToHomeSection('about');
-          }}
-          className="nav-link"
-        >
-          About
-        </span>
+        {isLoggedIn && currentUser?.role === "ROLE_USER" && (
+          <NavLink
+            to="/user/bookings"
+            className={({ isActive }) => (isActive ? "active" : "")}
+            onClick={() => {
+              setClickedNav("My Bookings");
+              setIsOpen(false);
+            }}
+          >
+            My Bookings
+          </NavLink>
+        )}
+
+
 
         <span
           onClick={() => {
@@ -114,10 +118,10 @@ function Navbar() {
                 <button className="login-btn">Login</button>
               </NavLink>
             );
-          } else if (currentUser?.isAdmin) {
+          } else if (currentUser?.role === "ROLE_ADMIN") {
             return (
               <NavLink
-                to="/admin"
+                to="/admin/dashboard"
                 className={({ isActive }) => (isActive ? 'active' : '')}
                 onClick={() => {
                   setClickedNav('Admin');
@@ -130,7 +134,7 @@ function Navbar() {
           } else {
             return (
               <NavLink
-                to="/profile"
+                to="/user/dashboard"
                 className={({ isActive }) => (isActive ? 'active' : '')}
                 onClick={() => {
                   setClickedNav('Profile');
@@ -146,6 +150,7 @@ function Navbar() {
         })()}
 
       </div>
+
 
       <div
         className="menu-icon"

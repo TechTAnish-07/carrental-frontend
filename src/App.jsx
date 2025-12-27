@@ -1,68 +1,61 @@
 // App.jsx
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Home from "./components/Home";
-import Login from "./components/Login";
-import Profile from "./components/Profile";
-import Cars from "./components/Cars";
-import AppLayout from "./components/layout/AppLayout";
-import ContactUs from "./ContactUs";
-import Admin from "./components/Admin";
-import ErrorPage from "./components/errorPage";
-import CarDetails from "./components/CarsDetails";
-import AvailableCars from "./components/Availablecars";
-import BookNow from "./components/BookNow";
-import Success from "./components/Success";
+import TyreLoader from "./components/TyreLoader";
+import AdminDashboard from "./components/pages/Admin/AdminDashboard";
+import AddCar from "./components/pages/Admin/AddCar";
+import ContactMessages from "./components/pages/Admin/ContactMessage";
+const UserBookings  = lazy(() => import("./components/UserBookings")) ;
+const Admin = lazy(() => import("./components/Admin"));
+const Home = lazy(() => import("./components/Home"));
+const Login = lazy(() => import("./components/Login"));
+const Profile = lazy(() => import("./components/Profile"));
+const Cars = lazy(() => import("./components/Cars"));
+const AppLayout = lazy(() => import("./components/layout/AppLayout"));
+const ContactUs = lazy(() => import("./ContactUs"));
+const ErrorPage = lazy(() => import("./components/errorPage"));
+const CarDetails = lazy(() => import("./components/CarsDetails"));
+const AvailableCars = lazy(() => import("./components/Availablecars"));
+const BookNow = lazy(() => import("./components/BookNow"));
+const Success = lazy(() => import("./components/Success"));
+
+// Loader
+const Loader = () => (
+  <div style={{ textAlign: "center", marginTop: "100px" }}>
+   
+  </div>
+);
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <AppLayout />,
-    errorElement: <ErrorPage/>,
+    errorElement: <ErrorPage />,
     children: [
-      {
-        index: true, // same as path: "/"
-        element: <Home />,
-      },
-      {
-        path: "signin",
-        element: <Login />,
-      },
-      {
-        path: "profile",
-        element: <Profile />,
-      },{
-        path: "admin",
-        element : <Admin/>
-      },
-      {
-        path: "cars",
-        element: <Cars />,
-      },{
-          path : 'cars/:id',
-          element: <CarDetails/>
-      },
-      {
-        path: "contact",
-        element: <ContactUs />,
-      },
-      {
-        path: "available",
-        element: <AvailableCars />,
-      },{
-        path: "book/:id",
-        element: <BookNow />,
-        
-      },{
-        path: "booking/success",
-        element: <Success/>,
-      }
+      { index: true, element: <Home /> },
+      { path: "signin", element: <Login /> },
+      { path: "user/dashboard", element: <Profile /> },
+      { path: "cars", element: <Cars /> },
+      { path: "cars/:id", element: <CarDetails /> },
+      { path: "contact", element: <ContactUs /> },
+      { path: "available", element: <AvailableCars /> },
+      { path: "book/:id", element: <BookNow /> },
+      { path: "booking/success", element: <Success /> },
+      { path: "user/bookings", element: <UserBookings /> },
+      { path: "admin/dashboard", element: <AdminDashboard /> },
+      { path: "admin/cars", element: <Cars /> },
+      { path: "admin/messages", element: <ContactMessages /> },
+      { path: "admin/cars/add", element: <AddCar /> },
     ],
   },
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <Suspense fallback={<TyreLoader />}>
+      <RouterProvider router={router} />
+    </Suspense>
+  );
 }
 
 export default App;

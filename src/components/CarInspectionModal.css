@@ -1,0 +1,360 @@
+/* Overlay with backdrop blur */
+.inspection-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal with improved shadow and animation */
+.inspection-modal {
+  background: #ffffff;
+  width: 95%;
+  max-width: 1200px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15), 0 12px 24px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.3s ease-out;
+  scroll-behavior: smooth;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Custom scrollbar */
+.inspection-modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.inspection-modal::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.inspection-modal::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.inspection-modal::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Header with better spacing */
+.inspection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 16px;
+  margin-bottom: 28px;
+}
+
+.inspection-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.inspection-header button {
+  background: #f1f5f9;
+  border: none;
+  cursor: pointer;
+  color: #475569;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 20px;
+}
+
+.inspection-header button:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+  transform: scale(1.05);
+}
+
+.inspection-header button:active {
+  transform: scale(0.95);
+}
+
+/* Section with better typography */
+.inspection-section {
+  margin-bottom: 36px;
+}
+
+.inspection-section:last-child {
+  margin-bottom: 0;
+}
+
+.inspection-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inspection-section h3::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border-radius: 2px;
+}
+
+/* Grid with responsive design */
+.inspection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+/* Image Box with modern card design */
+.inspection-box {
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 14px;
+  text-align: center;
+  background: #ffffff;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.inspection-box:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+.inspection-box p {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.inspection-box img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+/* Image wrapper for hover effects */
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+}
+
+.image-wrapper:hover img {
+  transform: scale(1.05);
+}
+
+/* Delete button with modern design */
+.delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.image-wrapper:hover .delete-btn {
+  opacity: 1;
+}
+
+.delete-btn:hover {
+  background: #ef4444;
+  border-color: #dc2626;
+  transform: scale(1.1);
+}
+
+.delete-btn:active {
+  transform: scale(0.95);
+}
+
+/* Upload Area with gradient and better interaction */
+.upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 140px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.upload-area::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(37, 99, 235, 0.05));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.upload-area:hover::before {
+  opacity: 1;
+}
+
+.upload-area:hover {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.upload-area svg {
+  width: 32px;
+  height: 32px;
+  color: #3b82f6;
+  transition: transform 0.3s ease;
+}
+
+.upload-area:hover svg {
+  transform: scale(1.1);
+}
+
+.upload-area span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #3b82f6;
+  position: relative;
+  z-index: 1;
+}
+
+.upload-area input {
+  display: none;
+}
+
+/* Loading state (optional) */
+.inspection-box.loading {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.inspection-box.loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .inspection-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .inspection-modal {
+    border-radius: 20px 20px 0 0;
+    height: 95vh;
+    max-height: 95vh;
+    padding: 24px;
+    width: 100%;
+    margin-top: auto;
+  }
+  
+  .inspection-header h2 {
+    font-size: 20px;
+  }
+  
+  .inspection-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  
+  .inspection-box {
+    padding: 12px;
+  }
+  
+  .image-wrapper,
+  .upload-area {
+    height: 120px;
+  }
+  
+  .inspection-box img {
+    height: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .inspection-modal {
+    padding: 20px;
+  }
+  
+  .inspection-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

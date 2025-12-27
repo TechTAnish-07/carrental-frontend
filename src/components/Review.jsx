@@ -1,80 +1,205 @@
-import React from 'react';
-import './Review.css';
+import React, { useEffect, useState } from "react";
+import "./Review.css";
+import api from "../components/Axios.jsx";
 
 const Review = () => {
-  const reviews = [
-    {
-      id: 1,
-      name: 'Mayak Kumar',
-      rating: 5,
-      comment: 'Excellent service! The BMW M4 was in perfect condition and made my trip unforgettable. Will definitely rent again!',
-      date: 'June 15, 2023'
-    },
-    {
-      id: 2,
-      name: 'Raj kalu',
-      rating: 3,
-      comment: 'Very smooth booking process. The car was clean and well-maintained. Only suggestion would be to offer more pickup locations.',
-      date: 'May 28, 2023'
-    },
-    {
-      id: 3,
-      name: 'Utkarsh Shukla',
-      rating: 5,
-      comment: 'Best rental experience in Dubai! The team went above and beyond to accommodate my last-minute request. 5 stars!',
-      date: 'April 10, 2023'
-    },
-    {
-      id: 4,
-      name: 'Utkarsh Shukla',
-      rating: 5,
-      comment: 'Best rental experience in Dubai! The team went above and beyond to accommodate my last-minute request. 5 stars!',
-      date: 'April 10, 2023'
-    },
-     {
-      id: 5,
-      name: 'Utkarsh Shukla',
-      rating: 5,
-      comment: 'Best rental experience in Dubai! The team went above and beyond to accommodate my last-minute request. 5 stars!',
-      date: 'April 10, 2023'
-    },
-     {
-      id: 6,
-      name: 'Utkarsh Shukla',
-      rating: 5,
-      comment: 'Best rental experience in Dubai! The team went above and beyond to accommodate my last-minute request. 5 stars!',
-      date: 'April 10, 2023'
-    },
-     {
-      id: 7,
-      name: 'Utkarsh Shukla',
-      rating: 5,
-      comment: 'Best rental experience in Dubai! The team went above and beyond to accommodate my last-minute request. 5 stars!',
-      date: 'April 10, 2023'
+  const [reviews, setReviews] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const reviewsPerPage = 6;
+  const [showForm, setShowForm] = useState(false);
+
+  // 🔐 Logged-in user
+  const storedUser = localStorage.getItem("currentUser");
+  const currentUser = storedUser ? JSON.parse(storedUser) : null;
+
+  // ✅ Only keep review-specific fields
+  const [formData, setFormData] = useState({
+    rating: 5,
+    comment: "",
+  });
+
+  /* ================= FETCH REVIEWS ================= */
+  useEffect(() => {
+    fetchReviews();
+  }, []);
+
+  const fetchReviews = async () => {
+    try {
+      const res = await api.get("/api/user/reviews");
+      setReviews(res.data || []);
+    } catch (err) {
+      console.error("Failed to fetch reviews", err);
     }
-  ];
+  };
+
+  /* ================= PAGINATION ================= */
+  const indexOfLast = currentPage * reviewsPerPage;
+  const indexOfFirst = indexOfLast - reviewsPerPage;
+  const currentReviews = reviews.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(reviews.length / reviewsPerPage);
+
+  /* ================= HELPERS ================= */
+  const getInitials = (name) => {
+    if (!name || typeof name !== "string") return "A";
+    return name
+      .trim()
+      .split(/\s+/)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
+  };
+
+  const formatDate = (dateStr) =>
+    new Date(dateStr).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+
+  /* ================= ADD REVIEW ================= */
+  const handleAddReview = async () => {
+    if (!formData.comment.trim()) {
+      alert("Review cannot be empty");
+      return;
+    }
+
+    // ✅ ALWAYS take username from logged-in user
+    const payload = {
+      username: currentUser?.displayname,
+      rating: formData.rating,
+      comment: formData.comment,
+    };
+
+    try {
+      await api.post("/api/user/reviews", payload);
+      setShowForm(false);
+      setFormData({ rating: 5, comment: "" });
+      fetchReviews();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add review");
+    }
+  };
 
   return (
-    <section className="reviews-section" id="reviews">
-      <h2>Customer <span style={{ color: 'red' }}>Reviews</span></h2>
-      <div className="reviews-container">
-        {reviews.map((review) => (
-          <div key={review.id} className="review-card">
-            <div className="review-header">
-              <h3>{review.name}</h3>
-              <div className="rating">
-                {[...Array(5)].map((_, i) => (
-                  <span key={i} className={i < review.rating ? 'star filled' : 'star'}>
-                    {i < review.rating ? '★' : '☆'}
+    <section className="reviews-section">
+      <div className="reviews-wrapper">
+        {/* HEADER */}
+        <div className="reviews-header">
+          <h2 className="reviews-title">
+            Customer <span className="reviews-title-highlight">Reviews</span>
+          </h2>
+          <p className="reviews-subtitle">
+            See what our customers say about their experience.
+          </p>
+        </div>
+
+        {/* REVIEWS */}
+        <div className="reviews-container">
+          {currentReviews.length === 0 ? (
+            <p className="empty-text">No reviews yet</p>
+          ) : (
+            currentReviews.map((review) => (
+              <div key={review.id} className="review-card">
+                <div className="review-header">
+                  <div className="reviewer-info">
+                    <div className="reviewer-avatar">
+                      {getInitials(review.username)}
+                    </div>
+                    <h3>{review.username || "Anonymous"}</h3>
+                  </div>
+
+                  <div className="rating">
+                    {[...Array(5)].map((_, i) => (
+                      <span
+                        key={i}
+                        className={`star ${i < review.rating ? "filled" : ""}`}
+                      >
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <p className="review-comment">"{review.comment}"</p>
+
+                <div className="review-footer">
+                  <span className="review-date">
+                    🗓 {formatDate(review.createdAt)}
                   </span>
-                ))}
+                </div>
               </div>
-            </div>
-            <p className="review-comment">"{review.comment}"</p>
-            <p className="review-date">{review.date}</p>
+            ))
+          )}
+        </div>
+
+        {/* PAGINATION */}
+        {totalPages > 1 && (
+          <div className="pagination">
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i}
+                className={`page-btn ${currentPage === i + 1 ? "active" : ""}`}
+                onClick={() => setCurrentPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
           </div>
-        ))}
+        )}
       </div>
+
+      {/* ADD REVIEW */}
+      <div className="add-review-wrapper">
+        <button className="add-review-btn" onClick={() => setShowForm(true)}>
+          ✍️ Add Your Review
+        </button>
+      </div>
+
+      {/* MODAL */}
+      {showForm && (
+        <div className="review-modal">
+          <div className="review-form">
+            <h3>Share Your Experience</h3>
+
+            {/* Display only (not state-controlled) */}
+            <input
+              value={currentUser?.displayname || "Anonymous"}
+              disabled
+            />
+
+            <select
+              value={formData.rating}
+              onChange={(e) =>
+                setFormData({ ...formData, rating: Number(e.target.value) })
+              }
+            >
+              {[5, 4, 3, 2, 1].map((r) => (
+                <option key={r} value={r}>
+                  {r} ⭐
+                </option>
+              ))}
+            </select>
+
+            <textarea
+              placeholder="Write your honest review..."
+              value={formData.comment}
+              onChange={(e) =>
+                setFormData({ ...formData, comment: e.target.value })
+              }
+            />
+
+            <div className="form-actions">
+              <button className="submit-btn" onClick={handleAddReview}>
+                Submit Review
+              </button>
+              <button className="cancel-btn" onClick={() => setShowForm(false)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

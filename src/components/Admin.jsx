@@ -1,36 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { LogOut } from 'lucide-react';
+import React, { lazy, useEffect, useState } from 'react'
+const api = lazy(() => import('./Axios'));
 
 const Admin = () => {
-  const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useState(null);
+ const handleLogout = ()=>{
 
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('currentUser'));
-    if (!user || !user.isAdmin) {
-      alert('Access denied. Admins only.');
-      navigate('/');
-    } else {
-      setCurrentUser(user);
-    }
-  }, [navigate]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('currentUser');
-    localStorage.setItem('isLoggedIn', 'false');
-    navigate('/');
+ }
+ const logout = () => {
+    localStorage.clear();
+    window.location.href = "/signin";
   };
-
-  if (!currentUser) return <p>Loading...</p>;
-
+ 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1>Welcome, Admin {currentUser.name || ''}!</h1>
-      <p>This is the admin dashboard.</p>
-      
-      <button onClick={handleLogout}>Logout</button>
+    <div>
+      <h1>Admin Dashboard</h1>
+      <p>Manage users, view reports, and configure settings.</p>
+       <button className="btn secondary full" onClick={logout}>
+              Logout
+            </button>
     </div>
-  );
-};
+  )
+}
 
-export default Admin;
+export default Admin

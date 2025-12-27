@@ -1,0 +1,80 @@
+/* Page */
+.book-wrapper {
+  min-height: 100vh;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Inter", system-ui, sans-serif;
+  padding: 24px;
+}
+
+/* Card */
+.book-container {
+  background: #ffffff;
+  width: 100%;
+  max-width: 420px;
+  padding: 32px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Title */
+.book-container h1 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 24px;
+}
+
+/* Details */
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.row span {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.row p {
+  font-size: 15px;
+  color: #111827;
+  font-weight: 500;
+  margin: 0;
+  word-break: break-word;
+}
+
+/* Button */
+.confirm-btn {
+  width: 100%;
+  padding: 12px;
+  background: #111827;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.confirm-btn:hover:not(:disabled) {
+  background: #000000;
+}
+
+.confirm-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

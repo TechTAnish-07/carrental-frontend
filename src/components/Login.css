@@ -84,7 +84,7 @@ body {
 }
 
 /* Toggle button inside warning message */
-.toggle-button {
+.toggle-btn {
   margin-left: 6px;
   background: none;
   border: none;
@@ -95,6 +95,16 @@ body {
   transition: color 0.2s ease;
 }
 
-.toggle-button:hover {
+.toggle-btn:hover {
   color: #0056b3;
+}
+.error-message {
+  background-color: #fee;
+  color: #c33;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  border: 1px solid #fcc;
+  font-size: 14px;
+  text-align: center;
 }

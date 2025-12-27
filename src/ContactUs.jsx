@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import './ContactUs.css'; // Import the CSS
-
 const ContactUs = () => {
+  const storedUser = localStorage.getItem("currentUser");
+  const currentUser = storedUser ? JSON.parse(storedUser) : null;
+  const isLoggedIn = localStorage.getItem("isLoggedIn");
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
+    name: currentUser?.displayname || "",
+    email: currentUser?.email || "",
+    message: ""
   });
+
+
 
   const [status, setStatus] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -21,7 +25,7 @@ const ContactUs = () => {
   const validateEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const { name, email, message } = formData;
@@ -35,35 +39,55 @@ const ContactUs = () => {
       setStatus('Please enter a valid email address.');
       return;
     }
+    const payload = {
+      name,
+      email,
+      subject: "Contact Form",
+      message,
+    };
+    try {
+      const res = await fetch("http://localhost:8080/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to send message");
+      }
 
-    setSubmitted(true);
-    setStatus('Your message has been "sent"! (UI only)');
-    setFormData({ name: '', email: '', message: '' });
+      setSubmitted(true);
+      setStatus('Your message has been "sent"!');
+      setFormData({ name: '', email: '', message: '' });
 
-    setTimeout(() => {
-      setSubmitted(false);
-      setStatus('');
-    }, 4000);
+      setTimeout(() => {
+        setSubmitted(false);
+        setStatus('');
+      }, 4000);
+    } catch (error) {
+      setStatus("Something went wrong. Please try again later.");
+    }
   };
 
   return (
-    <div className="contact-container">
+
+    
+    <div className="contact-container"
+ >
       <h2>Contact Us</h2>
       <form onSubmit={handleSubmit} className="contact-form">
         <input
           type="text"
           name="name"
-          placeholder="Your Name"
           value={formData.name}
-          onChange={handleChange}
+          readOnly
           className="contact-input"
         />
         <input
           type="email"
           name="email"
-          placeholder="Your Email"
+
           value={formData.email}
-          onChange={handleChange}
+          readOnly
           className="contact-input"
         />
         <textarea
@@ -80,9 +104,13 @@ const ContactUs = () => {
         >
           {submitted ? 'Sent!' : 'Send Message'}
         </button>
+
         {status && <p className="status-message">{status}</p>}
       </form>
+      {(!isLoggedIn &&
+      <p>Login to send message</p>)}
     </div>
+   
   );
 };
 

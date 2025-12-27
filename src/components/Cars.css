@@ -226,3 +226,33 @@ button:hover {
 .card-image:hover .image-overlay {
   opacity: 1;
 }
+.qty-controls {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.qty-controls button {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  background: #111827;
+  color: white;
+}
+
+.qty-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.out-of-stock-badge {
+  background: #ffebee;
+  color: #c62828;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}

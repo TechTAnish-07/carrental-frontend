@@ -1,0 +1,11 @@
+.admin-page {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.admin-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f172a;
+}

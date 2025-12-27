@@ -1,0 +1,26 @@
+.tyre-loader-wrapper {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
+}
+
+.tyre {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 8px solid #ddd;
+  border-top: 8px solid #111;
+  animation: spin 1s linear infinite;
+}
+
+/* Rotation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

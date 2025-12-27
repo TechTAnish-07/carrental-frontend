@@ -1,61 +1,67 @@
 import React, { useState } from "react";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+import api from "../components/Axios";
+import "./BookNow.css";
 
 const BookNow = () => {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const location = searchParams.get("location");
   const start = searchParams.get("start");
   const end = searchParams.get("end");
 
-  const [loading, setLoading] = useState(false);
-
   const handleConfirmBooking = async () => {
-    setLoading(true);
-
-    const bookingRequest = {
-      carId: id,
-     
-      startDateTime: start,
-      endDateTime: end,
-       userId:1, 
-    //   customerPhone: "9999999999"
-    };
-
     try {
-      const response = await fetch("http://localhost:8080/api/booking", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(bookingRequest),
-      });
-
-      const data = await response.json();
-      console.log("Booking Created:", data);
-
-      alert("Booking successful!");
-
+      setLoading(true);
+      console.log("Booking car:", id, location, start, end);
+      const payload = {
+        carId: Number(id),
+        location,
+        startDateTime: start,
+        endDateTime: end,
+      };
+      const res = await api.post("/api/user/booking", payload);
+      // console.log("Booking created:", res.data);
       navigate("/booking/success");
-    } catch (error) {
-      alert("Error creating booking");
+    } catch (err) {
+      console.error("Booking failed:", err);
+      alert("Failed to create booking");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
-    <div>
-      <h1>Complete Your Booking</h1>
+    <div className="book-wrapper">
+      <div className="book-container">
+        <h1>Confirm Booking</h1>
 
-      <p>Car ID: {id}</p>
-      <p>Location: {location}</p>
-      <p>Start: {start}</p>
-      <p>End: {end}</p>
+        <div className="details">
+          <div className="row">
+            <span>Location</span>
+            <p>{location}</p>
+          </div>
+          <div className="row">
+            <span>Start</span>
+            <p>{start}</p>
+          </div>
+          <div className="row">
+            <span>End</span>
+            <p>{end}</p>
+          </div>
+        </div>
 
-      <button onClick={handleConfirmBooking} disabled={loading}>
-        {loading ? "Booking..." : "Confirm Booking"}
-      </button>
+        <button
+          className="confirm-btn"
+          disabled={loading}
+          onClick={handleConfirmBooking}
+        >
+          {loading ? "Confirming..." : "Confirm Booking"}
+        </button>
+      </div>
     </div>
   );
 };

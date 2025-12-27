@@ -1,42 +1,79 @@
-import React, { useEffect, useState } from 'react';
-import './Cars.css';
-import Reviews from './Reviews';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import "./Cars.css";
+import Reviews from "./Reviews";
+import { useNavigate } from "react-router-dom";
+import api from "./Axios";
+
 
 function Cars() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [flips, setFlips] = useState({});
   const [carData, setCarData] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetch('http://localhost:8080/api/cars/display')
-      .then(response => response.json())
-      .then(data => {
-        console.log("API Response:", data);
-        setCarData(data);
-      })
-      .catch(error => console.error('Error fetching car data:', error));
-  }, []);
+  // 🚀 Fetch cars (NO useEffect)
+  const fetchCars = async () => {
+    try {
+      const res = await api.get("/api/cars/display");
+      console.log("API Response:", res.data);
+      setCarData(res.data);
+      console.log("Fetched car data:", res.data);
+      setLoaded(true);
 
+    } catch (err) {
+      console.error("Error fetching car data:", err);
+      setLoaded(true);
+    }
+  };
+  const updateQty = async (carId, delta) => {
+    try {
+      await api.put(`/api/cars/admin/quantity`, null, {
+        params: { carId, delta },
+      });
+      // update UI locally (fast UX)
+      setCarData((prev) =>
+        prev.map((car) =>
+          car.carId === carId
+            ? { ...car, quantity: car.quantity + delta }
+            : car
+        )
+      );
+    } catch (err) {
+      alert(err.response?.data || "Failed to update quantity");
+    }
+  };
+
+
+  // call once
+  useEffect(() => {
+    fetchCars();
+  }, []);
+  const isAdmin = localStorage.getItem("isLoggedIn") === "true" && JSON.parse(localStorage.getItem("currentUser"))?.role === "ROLE_ADMIN";
   const handleSearchBar = (e) => {
     setSearchTerm(e.target.value.toLowerCase());
   };
 
   const toggleFlip = (id) => {
-    setFlips(prev => ({
+    setFlips((prev) => ({
       ...prev,
       [id]: !prev[id],
     }));
   };
 
-  const filteredCars = carData.filter(car =>
-    (car.brand + " " + car.model).toLowerCase().includes(searchTerm)
-  );
+  const filteredCars = carData
+    .filter((car) => {
+      // 👤 USER → hide quantity 0
+      if (!isAdmin && car.quantity === 0) return false;
+      return true;
+    })
+    .filter((car) =>
+      (car.brand + " " + car.model)
+        .toLowerCase()
+        .includes(searchTerm)
+    );
 
-  const handleCardClick = (id) => {
-    navigate(`/cars/${id}`);
-  };
 
   return (
     <>
@@ -56,11 +93,16 @@ function Cars() {
         {filteredCars.length > 0 ? (
           filteredCars.map((car) => (
             <div className="flip-card" key={car.carId}>
-              <div className={`flip-card-inner ${flips[car.carId] ? 'flipped' : ''}`}>
-
-                {/* FRONT SIDE */}
+              <div
+                className={`flip-card-inner ${flips[car.carId] ? "flipped" : ""
+                  }`}
+              >
+                {/* FRONT */}
                 <div className="flip-card-front">
-                  <div className="card-image" onClick={() => handleCardClick(car.carId)}>
+                  <div
+                    className="card-image"
+                    onClick={() => handleCardClick(car.carId)}
+                  >
                     <img src={car.imageUrl} alt={car.model} />
                     <div className="image-overlay">
                       <span>Click to view details</span>
@@ -78,27 +120,64 @@ function Cars() {
                       <strong>Seats:</strong> {car.seats} <br />
                       <strong>Price/Day:</strong> ₹{car.pricePerDay} <br />
                       <strong>Status:</strong> {car.status} <br />
-                      <button onClick={() => toggleFlip(car.carId)}>Show Reviews</button>
+                      <strong>Quantity:</strong>{car.quantity} <br />
+
+                      {isAdmin && (
+                        <div className="qty-controls">
+                          <button
+                            onClick={() => updateQty(car.carId, -1)}
+                            disabled={car.quantity === 0}
+                          >
+                            −
+                          </button>
+                          {isAdmin && car.quantity === 0 && (
+                            <span className="out-of-stock-badge">
+                              Out of Stock
+                            </span>
+                          )}
+
+                          <button onClick={() => updateQty(car.carId, +1)}>
+                            +
+                          </button>
+                        </div>
+                      )}
+
+                      <strong>Location:</strong> {car.location} <br />
+                      {/* <button onClick={() => toggleFlip(car.carId)}>
+                        Show Reviews
+                      </button> */}
                     </div>
                   </div>
                 </div>
 
-                {/* BACK SIDE */}
+                {/* BACK */}
                 <div className="flip-card-back">
                   <div className="card-body">
-                    <h2>{car.brand} {car.model} - Reviews</h2>
+                    <h2>
+                      {car.brand} {car.model} - Reviews
+                    </h2>
 
                     <Reviews reviews={car.reviews || []} />
 
-                    <button onClick={() => toggleFlip(car.carId)}>Back to Details</button>
+                    <button onClick={() => toggleFlip(car.carId)}>
+                      Back to Details
+                    </button>
                   </div>
                 </div>
-
               </div>
             </div>
           ))
         ) : (
           <p className="no-results">No cars found.</p>
+        )}
+
+        {isAdmin && (
+          <button
+            className="add-car-btn"
+            onClick={() => navigate("/admin/cars/add")}
+          >
+            ➕ Add Car
+          </button>
         )}
       </div>
     </>

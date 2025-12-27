@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Home.css';
-import Review from './Review';
+
+const Review = React.lazy(() => import('./Review'));
 import bgImg from '../assets/homepageimage.png';
 import { useNavigate } from 'react-router-dom';
 import ContactUs from '../ContactUs';
@@ -12,10 +13,15 @@ const Home = () => {
   const [pickupTime, setPickupTime] = useState('');
   const [language, setLanguage] = useState(true);
   const [clickedNav, setClickedNav] = useState('');
-
+  const isLoginedIn = localStorage.getItem("isLoggedIn") === "true";
   const navigate = useNavigate();
 
-  // ---------------------- HANDLE SUBMIT ------------------------
+  // ---------------------- HANDLE SUBMIT -----------------------
+
+
+  useEffect(() => {
+    document.title = "Home";
+  }, []);
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -23,13 +29,13 @@ const Home = () => {
     const startTime = `${pickupDate}T${pickupTime}:00`;
     const endTime = `${dropoffDate}T${pickupTime}:00`;
 
-    // Navigate to AvailableCars page
+   
     navigate(
       `/available?location=${location}&start=${startTime}&end=${endTime}`
     );
   };
 
-  // ---------------------- HANDLE BOOK BUTTON -------------------
+ 
   const handleBookButton = () => {
     navigate('/cars');
     setClickedNav('Cars');
@@ -37,22 +43,19 @@ const Home = () => {
 
   const handleTranslate = () => setLanguage(!language);
 
-  useEffect(() => {
-    if (clickedNav) document.title = clickedNav;
-  }, [clickedNav]);
-
+ 
   return (
     <div>
-      <div className="home-container">
-        <section
-          className="car-hero"
-          style={{
+      <div className="home-container"   style={{
             backgroundImage: `url(${bgImg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-            height: '100vh',
-          }}
+            width: '100%',
+          }}>
+        <section
+          className="car-hero"
+        
         >
           {/* ---------------------- BOOKING FORM ---------------------- */}
           <div className="form-overlay">
@@ -101,8 +104,10 @@ const Home = () => {
                 />
               </div>
 
-              <button type="submit" className="form-submit-btn">
-                Find Vehicles
+              <button type="submit" className="form-submit-btn" disabled={!isLoginedIn}
+              title={!isLoginedIn ? "Login required to check availability" : ""}
+              >
+              Check Availability
               </button>
             </form>
           </div>
@@ -117,7 +122,7 @@ const Home = () => {
 
         {/* ---------------------- DESCRIPTION ---------------------- */}
         <section className="car-description">
-          <p>
+          <p className="description-text">
             Experience the thrill of premium performance. The BMW M4 Competition delivers
             track-inspired dynamics with everyday practicality.
           </p>
@@ -128,7 +133,7 @@ const Home = () => {
               setClickedNav('Cars');
             }}
           >
-            Book Now
+            Look More Cars
           </button>
         </section>
       </div>
