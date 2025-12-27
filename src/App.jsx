@@ -7,7 +7,6 @@ const AddCar = lazy(()=> import("./components/pages/Admin/AddCar")) ;
 const ContactMessages = lazy(()=> import("./components/pages/Admin/ContactMessage"));
 import ErrorPage from "./components/ErrorPage";
 const UserBookings  = lazy(() => import("./components/UserBookings")) ;
-const Admin = lazy(() => import("./components/Admin"));
 const Home = lazy(() => import("./components/Home"));
 const Login = lazy(() => import("./components/Login"));
 const Profile = lazy(() => import("./components/Profile"));
