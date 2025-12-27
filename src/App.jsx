@@ -2,9 +2,10 @@
 import React, { Suspense, lazy } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import TyreLoader from "./components/TyreLoader";
-import AdminDashboard from "./components/pages/Admin/AdminDashboard";
-import AddCar from "./components/pages/Admin/AddCar";
-import ContactMessages from "./components/pages/Admin/ContactMessage";
+const AdminDashboard = lazy(()=> import("./components/pages/Admin/AdminDashboard")) ;
+const AddCar = lazy(()=> import("./components/pages/Admin/AddCar")) ;
+const ContactMessages = lazy(()=> import("./components/pages/Admin/ContactMessage"));
+import ErrorPage from "./components/ErrorPage";
 const UserBookings  = lazy(() => import("./components/UserBookings")) ;
 const Admin = lazy(() => import("./components/Admin"));
 const Home = lazy(() => import("./components/Home"));
@@ -13,7 +14,6 @@ const Profile = lazy(() => import("./components/Profile"));
 const Cars = lazy(() => import("./components/Cars"));
 const AppLayout = lazy(() => import("./components/layout/AppLayout"));
 const ContactUs = lazy(() => import("./ContactUs"));
-const ErrorPage = lazy(() => import("./components/errorPage"));
 const CarDetails = lazy(() => import("./components/CarsDetails"));
 const AvailableCars = lazy(() => import("./components/Availablecars"));
 const BookNow = lazy(() => import("./components/BookNow"));
@@ -30,7 +30,7 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <AppLayout />,
-    errorElement: <ErrorPage />,
+    errorElement: <ErrorPage/>,
     children: [
       { index: true, element: <Home /> },
       { path: "signin", element: <Login /> },
