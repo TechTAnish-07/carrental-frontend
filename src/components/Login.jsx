@@ -3,8 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import api from "../components/Axios.jsx";
-import "./login.css";
-
+import "./Login.css";
 const Login = () => {
   const navigate = useNavigate();
 
