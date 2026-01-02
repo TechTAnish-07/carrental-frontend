@@ -38,7 +38,7 @@ const AvailableCars = () => {
     const fetchCars = async () => {
       setLoading(true);
       setError("");
-
+      location = location.toLowerCase();
       try {
         const res = await api.get("/api/cars/display/available", {
           params: {

@@ -29,9 +29,8 @@ const Home = () => {
     const startTime = `${pickupDate}T${pickupTime}:00`;
     const endTime = `${dropoffDate}T${pickupTime}:00`;
 
-    const carLocation = location.toLowerCase();
     navigate(
-      `/available?location=${carLocation}&start=${startTime}&end=${endTime}`
+      `/available?location=${location}&start=${startTime}&end=${endTime}`
     );
   };
 
