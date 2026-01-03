@@ -38,11 +38,11 @@ const AvailableCars = () => {
     const fetchCars = async () => {
       setLoading(true);
       setError("");
-      location = location.toLowerCase();
+      const carLocation = location.toLowerCase();
       try {
         const res = await api.get("/api/cars/display/available", {
           params: {
-            location,
+            location: carLocation,
             startDateTime: start,
             endDateTime: end,
           },

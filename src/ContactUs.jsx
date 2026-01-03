@@ -1,12 +1,14 @@
 import React, { lazy, useState } from 'react';
 import './ContactUs.css'; // Import the CSS
 import api from './components/Axios.jsx';
+import { useAuth } from './components/AuthProvider.jsx';
 const ContactUs = () => {
-  const storedUser = localStorage.getItem("currentUser");
-  const currentUser = storedUser ? JSON.parse(storedUser) : null;
+  const { user } = useAuth();
+  
+  const currentUser = user;
   const isLoggedIn = localStorage.getItem("isLoggedIn");
   const [formData, setFormData] = useState({
-    name: currentUser?.displayname || "",
+    name: currentUser?.name || "",
     email: currentUser?.email || "",
     message: ""
   });

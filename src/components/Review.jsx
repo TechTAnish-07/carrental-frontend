@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Review.css";
 import api from "../components/Axios.jsx";
+import { useAuth } from "./AuthProvider.jsx";
 
 const Review = () => {
   const [reviews, setReviews] = useState([]);
@@ -8,17 +9,14 @@ const Review = () => {
   const reviewsPerPage = 6;
   const [showForm, setShowForm] = useState(false);
 
-  // 🔐 Logged-in user
-  const storedUser = localStorage.getItem("currentUser");
-  const currentUser = storedUser ? JSON.parse(storedUser) : null;
+  const {user} = useAuth();
+  const currentUser = user;
 
-  // ✅ Only keep review-specific fields
   const [formData, setFormData] = useState({
     rating: 5,
     comment: "",
   });
 
-  /* ================= FETCH REVIEWS ================= */
   useEffect(() => {
     fetchReviews();
   }, []);
@@ -65,7 +63,7 @@ const Review = () => {
 
     // ✅ ALWAYS take username from logged-in user
     const payload = {
-      username: currentUser?.displayname,
+      username: currentUser.name,
       rating: formData.rating,
       comment: formData.comment,
     };
@@ -147,15 +145,16 @@ const Review = () => {
             ))}
           </div>
         )}
-      </div>
-
-      {/* ADD REVIEW */}
-      <div className="add-review-wrapper">
+        <div className="add-review-wrapper">
         <button className="add-review-btn" onClick={() => setShowForm(true)}>
           ✍️ Add Your Review
         </button>
       </div>
+      </div>
 
+      {/* ADD REVIEW */}
+      
+      
       {/* MODAL */}
       {showForm && (
         <div className="review-modal">
@@ -164,7 +163,7 @@ const Review = () => {
 
             {/* Display only (not state-controlled) */}
             <input
-              value={currentUser?.displayname || "Anonymous"}
+              value={currentUser?.name || "Anonymous"}
               disabled
             />
 

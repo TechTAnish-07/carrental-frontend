@@ -1,15 +1,17 @@
 /* ---------- Section ---------- */
 .reviews-section {
   background: linear-gradient(135deg, #f9fafb 0%, #eef2f6 100%);
-  padding: 80px 24px;
+  padding: 80px 16px;
   width: 100%;
+  overflow: hidden; /* important */
   display: flex;
-  flex-direction: column;
+  justify-content: center;
 }
 
+/* ---------- Wrapper ---------- */
 .reviews-wrapper {
+  width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
 }
@@ -36,24 +38,36 @@
   margin: 10px auto 0;
 }
 
-/* ---------- Reviews Grid ---------- */
+/* ---------- Reviews Row ---------- */
 .reviews-container {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(320px, 1fr);
-  gap: 28px;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
   overflow-x: auto;
-  padding-bottom: 12px;
+  padding: 8px 4px 16px;
+  scroll-snap-type: x mandatory;
+}
+
+/* Hide scrollbar */
+.reviews-container::-webkit-scrollbar {
+  display: none;
+}
+.reviews-container {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 /* ---------- Review Card ---------- */
 .review-card {
+  flex: 0 0 auto; /* prevents shrink */
+  width: min(90vw, 340px); /* safe width */
   background: #fff;
-  padding: 28px;
+  padding: 26px;
   border-radius: 22px;
-  min-width: 320px;
+  box-sizing: border-box;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.07);
-  transition: all 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  scroll-snap-align: start;
 }
 
 .review-card:hover {
@@ -61,11 +75,12 @@
   box-shadow: 0 18px 40px rgba(255, 107, 53, 0.18);
 }
 
-/* ---------- Header ---------- */
+/* ---------- Review Header ---------- */
 .review-header {
   display: flex;
   justify-content: space-between;
   margin-bottom: 14px;
+  gap: 12px;
 }
 
 .reviewer-info {
@@ -77,6 +92,7 @@
 .reviewer-avatar {
   width: 48px;
   height: 48px;
+  min-width: 48px;
   border-radius: 50%;
   background: linear-gradient(135deg, #ff6b35, #ff8c42);
   color: #fff;
@@ -87,6 +103,10 @@
 }
 
 /* ---------- Rating ---------- */
+.rating {
+  white-space: nowrap;
+}
+
 .rating .star {
   font-size: 18px;
   color: #e5e7eb;
@@ -101,10 +121,6 @@
   font-style: italic;
   color: #4b5563;
   line-height: 1.7;
-  display: -webkit-box;
-  
-  -webkit-box-orient: vertical;
-  overflow: hidden;
   margin-bottom: 12px;
 }
 
@@ -116,35 +132,11 @@
   color: #9ca3af;
 }
 
-/* ---------- Pagination ---------- */
-.pagination {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 32px;
-}
-
-.page-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  border: 2px solid #e5e7eb;
-  background: white;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.page-btn.active {
-  background: linear-gradient(135deg, #ff6b35, #ff8c42);
-  color: white;
-  border: none;
-}
-
 /* ---------- Add Review Button ---------- */
 .add-review-wrapper {
   display: flex;
   justify-content: center;
-  margin: 40px 0;
+  margin-top: 40px;
 }
 
 .add-review-btn {
@@ -158,55 +150,165 @@
   box-shadow: 0 10px 26px rgba(255, 107, 53, 0.35);
 }
 
-/* ---------- Modal ---------- */
+/* ---------- Responsive Tweaks ---------- */
+@media (min-width: 1024px) {
+  .reviews-section {
+    padding: 100px 24px;
+  }
+
+  .review-card {
+    width: 360px;
+  }
+}
+/* ---------- Add Review Button ---------- */
+.add-review-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 48px;
+}
+
+.add-review-btn {
+  background: linear-gradient(135deg, #ff6b35, #ff8c42);
+  color: white;
+  padding: 14px 36px;
+  border-radius: 999px;
+  border: none;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(255, 107, 53, 0.35);
+  transition: all 0.2s ease;
+}
+
+.add-review-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(255, 107, 53, 0.45);
+}
+
+.add-review-btn:active {
+  transform: scale(0.96);
+}
+/* ---------- Modal Overlay ---------- */
 .review-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(17, 24, 39, 0.65);
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 16px;              /* prevents edge touch on mobile */
   z-index: 1000;
 }
 
-/* ---------- Form ---------- */
+/* ---------- Review Form ---------- */
 .review-form {
-  background: white;
-  padding: 28px;
+  background: #ffffff;
   width: 100%;
   max-width: 420px;
-  border-radius: 16px;
-  animation: scaleIn 0.25s ease;
+  padding: 32px 28px;
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+  animation: modalPop 0.25s ease;
 }
 
+/* ---------- Title ---------- */
+.review-form h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #111827;
+}
+
+/* ---------- Inputs ---------- */
 .review-form input,
 .review-form select,
 .review-form textarea {
   width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1.5px solid #ddd;
-  margin-bottom: 14px;
+  padding: 14px 14px;
+  border-radius: 12px;
+  border: 1.5px solid #e5e7eb;
+  margin-bottom: 16px;
+  font-size: 14px;
+  box-sizing: border-box;
 }
 
+/* Disabled input */
+.review-form input:disabled {
+  background: #f9fafb;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+/* Textarea height */
+.review-form textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+/* Focus state */
+.review-form input:focus,
+.review-form select:focus,
+.review-form textarea:focus {
+  outline: none;
+  border-color: #ff6b35;
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
+}
+
+/* ---------- Buttons ---------- */
 .form-actions {
   display: flex;
   gap: 12px;
+  margin-top: 12px;
+}
+
+.submit-btn,
+.cancel-btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .submit-btn {
-  background: #ff6b35;
+  background: linear-gradient(135deg, #ff6b35, #ff8c42);
   color: white;
 }
 
+.submit-btn:hover {
+  transform: translateY(-1px);
+}
+
 .cancel-btn {
-  background: #eee;
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.cancel-btn:hover {
+  background: #e5e7eb;
+}
+
+/* ---------- Mobile Tweaks ---------- */
+@media (max-width: 480px) {
+  .review-form {
+    padding: 26px 22px;
+    border-radius: 16px;
+  }
+
+  .review-form h3 {
+    font-size: 20px;
+  }
 }
 
 /* ---------- Animation ---------- */
-@keyframes scaleIn {
+@keyframes modalPop {
   from {
-    transform: scale(0.9);
+    transform: scale(0.92);
     opacity: 0;
   }
   to {

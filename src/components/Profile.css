@@ -25,27 +25,46 @@
 }
 
 /* Profile Image */
+/* PROFILE IMAGE CONTAINER */
 .profile-pic {
   width: 130px;
   height: 130px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ff7a00, #ff9a3c);
+  overflow: hidden;          /* 🔥 THIS IS THE KEY */
+  position: relative;
+  background: #f3f4f6;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
+/* PROFILE IMAGE */
+.profile-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;         /* 🔥 PREVENTS STRETCHING */
+  border-radius: 50%;
+}
+
+/* CAMERA BUTTON */
 .camera-btn {
   position: absolute;
-  bottom: 6px;
-  right: 6px;
-  background: #1f1f1f;
-  color: #ff7a00;
+  bottom: 8px;
+  right: 8px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  padding: 6px;
+  background: #111;
+  color: #ff6b35;
+  border: none;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-btn:hover {
+  background: #222;
 }
 
 /* Header Text */

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import './Navbar.css';
 import Profileicon from '../assets/Profileicon.png';
+import { useAuth } from './AuthProvider';
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,18 +10,17 @@ function Navbar() {
   const navigate = useNavigate();
   const [clickedNav, setClickedNav] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const { user, isAdmin } = useAuth();
   useEffect(() => {
     const loginStatus = localStorage.getItem("isLoggedIn") === "true";
     setIsLoggedIn(loginStatus);
-    const user = JSON.parse(localStorage.getItem("currentUser"));
-    setCurrentUser(user);
+    
   }, [location]);
   useEffect(() => {
     const loginStatus = localStorage.getItem("isLoggedIn") === "true";
     setIsLoggedIn(loginStatus);
   }, [location]);
-
+  const icon = user && user.imageUrl ? user.imageUrl : Profileicon;
   const scrollToHomeSection = (sectionId) => {
     if (location.pathname === '/') {
       const element = document.getElementById(sectionId);
@@ -55,10 +55,14 @@ function Navbar() {
 
     handleHashLink();
   }, [location]);
-
+  const handleClickLogo = () => {
+    setClickedNav('Home');
+    navigate('/');
+    setIsOpen(false);
+  };
   return (
     <nav className="navbar">
-      <div className="logo">SAngRAj<span> Rental</span></div>
+      <div className="logo" onClick={handleClickLogo} >SAngRAj<span> Rental</span></div>
 
       <div className={`nav-links ${isOpen ? 'active' : ''}`}>
         <NavLink
@@ -69,7 +73,7 @@ function Navbar() {
           Home
         </NavLink>
 
-      {currentUser?.role !== "ROLE_ADMIN" && (
+      {!isAdmin && (
         <NavLink
           to="/Cars"
           className={({ isActive }) => isActive ? 'active' : ''}
@@ -79,7 +83,7 @@ function Navbar() {
         </NavLink>
       )}
 
-        {isLoggedIn && currentUser?.role === "ROLE_USER" && (
+        {isLoggedIn && !isAdmin && (
           <NavLink
             to="/user/bookings"
             className={({ isActive }) => (isActive ? "active" : "")}
@@ -118,7 +122,7 @@ function Navbar() {
                 <button className="login-btn">Login</button>
               </NavLink>
             );
-          } else if (currentUser?.role === "ROLE_ADMIN") {
+          } else if (isAdmin) {
             return (
               <NavLink
                 to="/admin/dashboard"
@@ -142,7 +146,7 @@ function Navbar() {
                 }}
               >
                 <button className="login-btn">
-                  <img src={Profileicon} alt="Profile" className="profile-icon" />
+                  <img src={icon} alt="Profile" className="profile-icon" />
                 </button>
               </NavLink>
             );

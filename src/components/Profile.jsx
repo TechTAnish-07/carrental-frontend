@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import api from "../components/Axios";
 import {
   User,
@@ -18,37 +18,21 @@ import {
 } from "lucide-react";
 import "./Profile.css";
 import { jwtDecode } from "jwt-decode";
+import { useAuth } from "./AuthProvider";
 
 const Profile = () => {
-  const [profile, setProfile] = useState(null);
+  const { user, fetchUser, isUser } = useAuth();
+  const profile = user; 
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({ phone: "", address: "" });
   const [aadhaar, setAadhaar] = useState(null);
   const [dl, setDl] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const decoded = jwtDecode(localStorage.getItem("accessToken"));
-  const role = decoded.role;
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  /* ================= FETCH PROFILE ================= */
-  const fetchProfile = async () => {
-    try {
-      const res = await api.get("/api/user-detail/me");
-      setProfile(res.data);
-      setFormData({
-        phone: res.data.phone || "",
-        address: res.data.address || "",
-      });
-      
-    } catch {
-      alert("Session expired. Please login again.");
-      logout();
-    }
-  };
-
-  useEffect(() => {
-    fetchProfile();
-  }, []);
+  const fileInputRef = useRef(null);
+ 
 
   /* ================= UPDATE DETAILS ================= */
   const saveDetails = async () => {
@@ -56,9 +40,49 @@ const Profile = () => {
       setLoading(true);
       await api.put("/api/user-detail/details", formData);
       setEditing(false);
-      fetchProfile();
+      await fetchUser();
     } catch {
       alert("Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ================= HANDLE PROFILE IMAGE ================= */
+  const handlePhotoUpload = () => {
+    fileInputRef.current.click();
+  };
+
+  useEffect(() => {
+    if (!profileImage) return;
+    uploadProfileImage();
+  }, [profileImage]);
+
+  const uploadProfileImage = async () => {
+    if (!profileImage) return;
+
+    if (!profileImage.type.startsWith("image/")) {
+      alert("Only image files allowed");
+      return;
+    }
+
+    if (profileImage.size > 2 * 1024 * 1024) {
+      alert("Image must be under 2MB");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const data = new FormData();
+      data.append("profileImage", profileImage);
+
+      await api.post("/api/user-detail/profile-image", data);
+
+      setProfileImage(null);
+      await fetchUser();
+      alert("Profile image uploaded successfully");
+    } catch {
+      alert("Profile image upload failed");
     } finally {
       setLoading(false);
     }
@@ -77,12 +101,10 @@ const Profile = () => {
 
     try {
       setLoading(true);
-
       await api.post("/api/user-detail/kyc", data);
-
       setAadhaar(null);
       setDl(null);
-      fetchProfile();
+      await fetchUser();
       alert("KYC uploaded successfully");
     } catch {
       alert("KYC upload failed");
@@ -123,27 +145,40 @@ const Profile = () => {
       alert("Failed to delete account");
     }
   };
+
   if (!profile) return <p className="loading">Loading profile...</p>;
+
   return (
     <div className="profile-page">
       {/* ================= HEADER ================= */}
       <div className="profile-header">
         <div className="header-content">
           <div className="profile-pic">
-            <User size={56} />
-            <button className="camera-btn">
+            {profile.imageUrl ? (
+              <img src={profile.imageUrl} alt="Profile" className="profile-img" />
+            ) : (
+              <User size={56} />
+            )}
+
+            <button className="camera-btn" onClick={handlePhotoUpload}>
               <Camera size={18} />
             </button>
+
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={(e) => setProfileImage(e.target.files[0])}
+            />
           </div>
 
           <div className="header-info">
             <h1>{profile.name}</h1>
-            {/* <p>{role.substring(5)}</p> */}
             <div className="header-meta">
               <span>
                 <Mail size={16} /> {profile.email}
               </span>
-             
             </div>
             <div className="badge">
               <Award size={18} /> Account Active
@@ -153,189 +188,108 @@ const Profile = () => {
       </div>
 
       {/* ================= CONTENT ================= */}
-{( role === "ROLE_USER" &&  <div className="profile-content">
-        {/* LEFT COLUMN */}
-        <div className="left-column">
-          {/* PERSONAL DETAILS */}
-          <div className="card">
-            <div className="card-header">
-              <h2>
-                <User size={20} /> Personal Details
-              </h2>
-              {!editing && (
-                <button className="btn primary" onClick={() => setEditing(true)}>
-                  <Edit2 size={16} /> Edit
-                </button>
-              )}
+      {isUser && (
+        <div className="profile-content">
+          {/* LEFT COLUMN */}
+          <div className="left-column">
+            {/* PERSONAL DETAILS */}
+            <div className="card">
+              <div className="card-header">
+                <h2>
+                  <User size={20} /> Personal Details
+                </h2>
+                {!editing && (
+                  <button className="btn primary" onClick={() => setEditing(true)}>
+                    <Edit2 size={16} /> Edit
+                  </button>
+                )}
+              </div>
+
+              <div className="card-body">
+                {editing ? (
+                  <>
+                    <input
+                      value={formData.phone}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
+                      placeholder="Phone"
+                    />
+                    <textarea
+                      value={formData.address}
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
+                      }
+                      placeholder="Address"
+                    />
+                    <div className="btn-group">
+                      <button className="btn success" onClick={saveDetails} disabled={loading}>
+                        <Check /> Save
+                      </button>
+                      <button className="btn secondary" onClick={() => setEditing(false)}>
+                        <X /> Cancel
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p><Phone /> {profile.phone || "Not provided"}</p>
+                    <p><MapPin /> {profile.address || "Not provided"}</p>
+                  </>
+                )}
+              </div>
             </div>
 
-            <div className="card-body">
-              {editing ? (
-                <>
-                  <input
-                    value={formData.phone}
-                    onChange={(e) =>
-                      setFormData({ ...formData, phone: e.target.value })
-                    }
-                    placeholder="Phone"
-                  />
-                  <textarea
-                    value={formData.address}
-                    onChange={(e) =>
-                      setFormData({ ...formData, address: e.target.value })
-                    }
-                    placeholder="Address"
-                  />
-                  <div className="btn-group">
-                    <button
-                      className="btn success"
-                      onClick={saveDetails}
-                      disabled={loading}
-                    >
-                      <Check /> Save
-                    </button>
-                    <button
-                      className="btn secondary"
-                      onClick={() => setEditing(false)}
-                    >
-                      <X /> Cancel
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <p>
-                    <Phone /> {profile.phone || "Not provided"}
-                  </p>
-                  <p>
-                    <MapPin /> {profile.address || "Not provided"}
-                  </p>
-                </>
-              )}
+            {/* KYC */}
+            <div className="card">
+              <div className="card-header">
+                <h2><FileText size={20} /> KYC Documents</h2>
+              </div>
+
+              <div className="card-body">
+                <div className="upload-box">
+                  <label>Aadhaar Card</label>
+                  <input type="file" onChange={(e) => setAadhaar(e.target.files[0])} />
+                </div>
+
+                <div className="upload-box">
+                  <label>Driving License</label>
+                  <input type="file" onChange={(e) => setDl(e.target.files[0])} />
+                </div>
+
+                <button className="btn primary full" onClick={uploadKyc} disabled={loading}>
+                  {loading ? "Uploading..." : <><Upload size={18} /> Upload / Update KYC</>}
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* ================= KYC ================= */}
-          <div className="card">
-            <div className="card-header">
-              <h2>
-                <FileText size={20} /> KYC Documents
-              </h2>
-            </div>
+          {/* RIGHT COLUMN */}
+          <div className="right-column">
+            <div className="card danger">
+              <h3><Shield /> Security</h3>
 
-            <div className="card-body">
-              {/* Aadhaar */}
-              <div className="upload-box">
-                <label>Aadhaar Card</label>
-                <input
-                  type="file"
-                  accept="image/*,.pdf"
-                  onChange={(e) => setAadhaar(e.target.files[0])}
-                />
+              <button className="btn secondary full" onClick={logout}>Logout</button>
 
-                {profile.aadhaarUploaded && (
-                  <div className="kyc-actions">
-                    <a
-                      href={profile.aadhaarUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      View
-                    </a>
-                    <button
-                      className="link-danger"
-                      onClick={() => removeKyc("aadhaar")}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* DL */}
-              <div className="upload-box">
-                <label>Driving License</label>
-                <input
-                  type="file"
-                  accept="image/*,.pdf"
-                  onChange={(e) => setDl(e.target.files[0])}
-                />
-
-                {profile.drivingLicenseUploaded && (
-                  <div className="kyc-actions">
-                    <a
-                      href={profile.drivingLicenseUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      View
-                    </a>
-                    <button
-                      className="link-danger"
-                      onClick={() => removeKyc("dl")}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              <button
-                className="btn primary full"
-                onClick={uploadKyc}
-                disabled={loading}
-              >
-                {loading ? "Uploading..." : (
-                  <>
-                    <Upload size={18} /> Upload / Update KYC
-                  </>
-                )}
-              </button>
-
+              {!showDeleteConfirm ? (
+                <button className="btn danger full" onClick={() => setShowDeleteConfirm(true)}>
+                  <Trash2 /> Delete Account
+                </button>
+              ) : (
+                <>
+                  <p className="warning"><AlertCircle /> This cannot be undone</p>
+                  <button className="btn danger full" onClick={deleteAccount}>
+                    Confirm Delete
+                  </button>
+                  <button className="btn secondary full" onClick={() => setShowDeleteConfirm(false)}>
+                    Cancel
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
-
-        {/* RIGHT COLUMN */}
-        <div className="right-column">
-          <div className="card danger">
-            <h3>
-              <Shield /> Security
-            </h3>
-
-            <button className="btn secondary full" onClick={logout}>
-              Logout
-            </button>
-
-            {!showDeleteConfirm ? (
-              <button
-                className="btn danger full"
-                onClick={() => setShowDeleteConfirm(true)}
-              >
-                <Trash2 /> Delete Account
-              </button>
-            ) : (
-              <>
-                <p className="warning">
-                  <AlertCircle /> This cannot be undone
-                </p>
-                <button className="btn danger full" onClick={deleteAccount}>
-                  Confirm Delete
-                </button>
-                <button
-                  className="btn secondary full"
-                  onClick={() => setShowDeleteConfirm(false)}
-                >
-                  Cancel
-                </button>
-              </>
-            )}
-          </div>
-
-
-          </div>
-      </div>)}
-    
+      )}
     </div>
   );
 };

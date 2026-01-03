@@ -61,7 +61,15 @@ function Cars() {
       [id]: !prev[id],
     }));
   };
-
+ const Cars =[
+  "Baleno",
+  "Thar",
+  "Swift",
+  "Alto",
+  "Fortuner",
+  "Tata Nexon",
+  "Wagon R",
+ ]
   const filteredCars = carData
     .filter((car) => {
       // 👤 USER → hide quantity 0
@@ -74,17 +82,25 @@ function Cars() {
         .includes(searchTerm)
     );
 
-
+  const handleCardClick = (carId) => {
+    navigate(`/cars/${carId}`);
+  };
   return (
     <>
       <div className="search-container">
         <input
           className="search-input"
           type="text"
+          list="Cars"
           placeholder="Search for cars..."
           onChange={handleSearchBar}
           value={searchTerm}
         />
+        <datalist id="Cars">
+          {Cars.map((car) => (
+            <option key={car} value={car} />
+          ))}
+        </datalist>
       </div>
 
       <h1 id="title">Ready. Set. Rent. 🚘</h1>

@@ -13,6 +13,7 @@ const Home = () => {
   const [pickupTime, setPickupTime] = useState('');
   const [language, setLanguage] = useState(true);
   const [clickedNav, setClickedNav] = useState('');
+  const [dropTime , setDropTime] = useState('');
   const isLoginedIn = localStorage.getItem("isLoggedIn") === "true";
   const navigate = useNavigate();
 
@@ -27,7 +28,7 @@ const Home = () => {
 
     // Create backend-compatible datetime format
     const startTime = `${pickupDate}T${pickupTime}:00`;
-    const endTime = `${dropoffDate}T${pickupTime}:00`;
+    const endTime = `${dropoffDate}T${dropTime}:00`;
 
     navigate(
       `/available?location=${location}&start=${startTime}&end=${endTime}`
@@ -113,7 +114,7 @@ const Home = () => {
                   />
                 </div>
               </div>
-
+            <div className='form-row'>
               <div className="form-group">
                 <label>Drop-Off Date</label>
                 <input
@@ -123,7 +124,17 @@ const Home = () => {
                   required
                 />
               </div>
-
+              <div className="form-group">
+                  <label>drop Time</label>
+                  <input
+                    type="time"
+                    value={dropTime}
+                    onChange={(e) => setDropTime(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+            
               <button type="submit" className="form-submit-btn"
                 title={!isLoginedIn ? "Login required to check availability" : ""}
               >
