@@ -47,17 +47,22 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     const status = error.response?.status;
 
-    // ❌ Ignore refresh endpoint itself
+    const isAuthRequest =
+      originalRequest.url.includes("/auth/login") ||
+      originalRequest.url.includes("/auth/register");
+
+    if (isAuthRequest) {
+      return Promise.reject(error);
+    }
+
     if (originalRequest.url.includes("/auth/refresh")) {
       logout();
       return Promise.reject(error);
     }
 
-    // 🔐 Access token expired
     if (status === 401 && !originalRequest._retry) {
 
       if (isRefreshing) {
-        // Queue pending requests
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         }).then((token) => {
@@ -84,15 +89,11 @@ api.interceptors.response.use(
 
         const newAccessToken = res.data.token;
 
-        // ✅ Save new token
         localStorage.setItem("accessToken", newAccessToken);
-
-        // Update headers
         api.defaults.headers.Authorization = `Bearer ${newAccessToken}`;
 
         processQueue(null, newAccessToken);
 
-        // Retry original request
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(originalRequest);
 
@@ -110,11 +111,12 @@ api.interceptors.response.use(
   }
 );
 
+
 /* ===================== HELPERS ===================== */
 
 const logout = () => {
   localStorage.clear();
-  window.location.href = "/login";
+  window.location.href = "/signin";
 };
 
 export default api;

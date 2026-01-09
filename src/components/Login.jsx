@@ -19,56 +19,72 @@ const Login = () => {
     setError("");
   };
 
-  const handleSubmitButton = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+const handleSubmitButton = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-    try {
-      if (isSignIn) {
-        // 🔐 LOGIN
-        const res = await api.post("/auth/login", { email, password });
+  try {
+    if (isSignIn) {
+      // 🔐 LOGIN (Axios)
+      const res = await api.post("/auth/login", { email, password });
 
-        const { token, refreshToken } = res.data;
+      const { accessToken, refreshToken, user } = res.data;
 
-        localStorage.setItem("accessToken", token);
-        localStorage.setItem("refreshToken", refreshToken);
-        localStorage.setItem("currentUser", JSON.stringify(res.data.user));
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("currentUser", JSON.stringify(user));
+      localStorage.setItem("isLoggedIn", "true");
 
-        localStorage.setItem("isLoggedIn", "true");
-        const decoded = jwtDecode(token);
-        const role = decoded.role;
+      const decoded = jwtDecode(accessToken);
+      const role = decoded.role;
 
-
-        if (role === "ROLE_ADMIN") {
-          navigate("/admin/dashboard");
-        } else {
-          navigate("/user/dashboard");
-        }
-
+      if (role === "ROLE_ADMIN") {
+        navigate("/admin/dashboard");
       } else {
-        // 📝 REGISTER
-        const res = await fetch("https://carrentalbackend-h8b3.onrender.com/auth/register", {
+        navigate("/user/dashboard");
+      }
+
+    } else {
+      // 📝 REGISTER (Fetch)
+      const res = await fetch(
+        "https://carrentalbackend-h8b3.onrender.com/auth/register",
+        {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, username, password }),
-        });
-
-        if (!res.ok) {
-          const msg = await res.text();
-          throw new Error(msg || "Registration failed");
         }
+      );
 
-        setError("Please check your email to verify your account.");
-        setIsSignIn(true);
-        setPassword("");
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || "Registration failed");
       }
-    } catch (err) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoading(false);
+
+      setError("Please check your email to verify your account.");
+      setIsSignIn(true);
+      setPassword("");
     }
-  };
+
+  } catch (err) {
+    // ✅ Axios error handling
+    if (err.response) {
+      if (err.response.status === 401) {
+        setError("Invalid email or password");
+      } else if (err.response.status === 403) {
+        setError("Please verify your email before logging in");
+      } else {
+        setError(err.response.data?.message || "Something went wrong");
+      }
+    } else {
+      setError(err.message || "Network error");
+    }
+
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="auth-container">
